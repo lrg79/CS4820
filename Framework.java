@@ -130,22 +130,30 @@ public class Framework
 		while(!queue.isEmpty()){
 			int man = queue.poll();
 			int[] manPref = MenPrefs[man];
-			
+			System.out.println(queue);
 			for(int i = 0; i < manPref.length; i++){
 				int wo = manPref[i];
 				if(wstatus.get(wo) == -1){
+					System.out.println("case 1:");
 					wstatus.put(wo, man);
+					System.out.println(man + "," + wo);
 					break;
 				}
 				//she is married
 				else{
-					HashMap<Integer, Integer> curWoPref = wmap.get(wo);			
+					System.out.println("case 2:");
+					HashMap<Integer, Integer> curWoPref = wmap.get(wo);
+					System.out.println("cur pair: " + wstatus.get(wo) + "," + wo);
+					System.out.println("man " + wstatus.get(wo) + " ranked " + curWoPref.get(wstatus.get(wo)));
+					System.out.println("man " + man + " ranked " + curWoPref.get(man));
 					//if she prefers the current man
-					if(curWoPref.get(man) < wstatus.get(wo)){
-						queue.add(wstatus.get(wo)); //man she was married to now unmarried
+					if(curWoPref.get(man) < curWoPref.get(wstatus.get(wo))){
+						System.out.println("swapping husbands");
+						queue.add(wstatus.get(wo)); //man she was married to now unmarried						wstatus.remove(wo);
 						wstatus.remove(wo);
 						wstatus.put(wo, man);
-						
+						System.out.println("queue after swap: " + queue);
+						break;
 					}
 				}
 			}
