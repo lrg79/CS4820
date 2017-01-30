@@ -109,42 +109,55 @@ public class Framework
 		*/
 
 		//YOUR CODE STARTS HERE
-		//hashmap keeps track of whether man and woman is married or not
+		//hashmap layout:
+		// woman -> (man -> pref number)
+		// men -> (woman -> pref number)
 		//-1 means not married
-		HashMap <Integer, Integer> mmap = new HashMap<Integer, Integer>();
-		HashMap <Integer, Integer> wmap = new HashMap<Integer, Integer>();
+		HashMap <Integer, HashMap<Integer, Integer>> wmap = new HashMap<Integer, HashMap<Integer, Integer>>();
+		HashMap<Integer, Integer> wstatus = new HashMap<Integer, Integer>(); //keeps track woman married or not
 		Queue<Integer> queue = new LinkedList<Integer>();
 		
 		for(int i = 0; i < n; i++){
-			mmap.put(i, -1);
-			wmap.put(i, -1);
+			wmap.put(i,  new HashMap<Integer, Integer>());
+			wstatus.put(i, -1);
+			for(int j = 0; j < n; j++){
+				wmap.get(i).put(WomenPrefs[i][j], j);
+			}
 			queue.add(i);
 		}
 		
-		//while we haven't reached an optimal matching
-		while(MatchedPairsList.size() < n){
-			
+		//while we still have unmarried men
+		while(!queue.isEmpty()){
 			int man = queue.poll();
 			int[] manPref = MenPrefs[man];
 			
 			for(int i = 0; i < manPref.length; i++){
 				int wo = manPref[i];
-				if(wmap.get(wo) == -1){
-					//means she is unmarried, and can match
-					MatchedPair pair = new MatchedPair(man, wo);
-					MatchedPairsList.add(pair);
-					mmap.put(man, wo);
-					wmap.put(wo, man);
+				if(wstatus.get(wo) == -1){
+					wstatus.put(wo, man);
 					break;
 				}
 				//she is married
 				else{
-					int[] woPref = WomenPrefs[wo];
-					if(woPref.length < wmap.get(wo)){
+					HashMap<Integer, Integer> curWoPref = wmap.get(wo);			
+					//if she prefers the current man
+					if(curWoPref.get(man) < wstatus.get(wo)){
+						queue.add(wstatus.get(wo)); //man she was married to now unmarried
+						wstatus.remove(wo);
+						wstatus.put(wo, man);
 						
 					}
-				}				
+				}
 			}
+		}
+		
+		Iterator it = wstatus.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry)it.next();
+			int wo = (int) pair.getKey();
+			int man = (int) pair.getValue();
+			MatchedPair match = new MatchedPair(man, wo);
+			MatchedPairsList.add(match);
 		}
 		
 		//YOUR CODE ENDS HERE
